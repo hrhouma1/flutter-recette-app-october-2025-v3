@@ -15,7 +15,6 @@ The error "Cannot hit test a render box that has never been laid out" occurs whe
 ### Version 1 (BROKEN ❌)
 
 ```mermaid
-%%{init: {'theme':'default', 'themeVariables': { 'primaryColor':'#ffcccc','primaryTextColor':'#000','primaryBorderColor':'#cc0000','lineColor':'#333','secondaryColor':'#fff3cd','secondaryTextColor':'#000','tertiaryColor':'#d4edda','tertiaryTextColor':'#000'}}}%%
 graph TD
     A[SafeArea] --> B[Column]
     B --> C[Padding horizontal: 15]
@@ -32,9 +31,9 @@ graph TD
     M --> N[StreamBuilder Recipes]
     N --> O[GridView.builder<br/>shrinkWrap: true<br/>physics: NeverScrollableScrollPhysics]
     
-    style M fill:#ffcccc,stroke:#cc0000,stroke-width:3px,color:#000
-    style D fill:#fff3cd,stroke:#856404,stroke-width:2px,color:#000
-    style O fill:#ffcccc,stroke:#cc0000,stroke-width:3px,color:#000
+    style M fill:#ff6b6b
+    style D fill:#ff6b6b
+    style O fill:#ff6b6b
 ```
 
 **Problem**: The inner `Column` (D) is trying to shrink-wrap its children, but contains an `Expanded` widget (M). The `Expanded` widget needs the parent to provide bounded constraints, but the parent `Column` is itself unbounded in the vertical direction because it's inside a `Padding` that's inside another `Column`.
@@ -42,7 +41,6 @@ graph TD
 ### Version 2 (WORKING ✓)
 
 ```mermaid
-%%{init: {'theme':'default', 'themeVariables': { 'primaryColor':'#d4edda','primaryTextColor':'#000','primaryBorderColor':'#28a745','lineColor':'#333','secondaryColor':'#fff3cd','secondaryTextColor':'#000'}}}%%
 graph TD
     A[SafeArea] --> B[Column]
     B --> C[Padding horizontal: 15]
@@ -59,8 +57,8 @@ graph TD
     M --> N[StreamBuilder Recipes]
     N --> O[GridView.builder<br/>shrinkWrap: true<br/>physics: NeverScrollableScrollPhysics]
     
-    style M fill:#d4edda,stroke:#28a745,stroke-width:3px,color:#000
-    style D fill:#fff3cd,stroke:#856404,stroke-width:2px,color:#000
+    style M fill:#51cf66
+    style D fill:#51cf66
 ```
 
 **Solution**: Replaced `Expanded` with `Container(height: 400)`. This gives the GridView a fixed height constraint, allowing the inner Column to properly size itself.
@@ -68,7 +66,6 @@ graph TD
 ### Version 3 (WORKING ✓ - BEST APPROACH)
 
 ```mermaid
-%%{init: {'theme':'default', 'themeVariables': { 'primaryColor':'#d4edda','primaryTextColor':'#000','primaryBorderColor':'#28a745','lineColor':'#333'}}}%%
 graph TD
     A[SafeArea] --> B[Padding horizontal: 15]
     B --> C[Column]
@@ -84,9 +81,9 @@ graph TD
     L --> M[StreamBuilder Recipes]
     M --> N[GridView.builder<br/>NO shrinkWrap<br/>Scrollable]
     
-    style L fill:#d4edda,stroke:#28a745,stroke-width:3px,color:#000
-    style C fill:#d4edda,stroke:#28a745,stroke-width:3px,color:#000
-    style N fill:#d4edda,stroke:#28a745,stroke-width:3px,color:#000
+    style L fill:#51cf66
+    style C fill:#51cf66
+    style N fill:#51cf66
 ```
 
 **Solution**: Restructured the widget tree so that:
@@ -166,7 +163,6 @@ return SafeArea(
 ### Why Version 1 Fails ❌
 
 ```mermaid
-%%{init: {'theme':'default', 'themeVariables': { 'primaryColor':'#e8f4f8','primaryTextColor':'#000','primaryBorderColor':'#0066cc','lineColor':'#333','errorBkgColor':'#ffcccc','errorTextColor':'#000'}}}%%
 flowchart TD
     A[Layout Phase Starts] --> B[SafeArea gets screen constraints]
     B --> C[Outer Column tries to size children]
@@ -174,13 +170,13 @@ flowchart TD
     D --> E[Inner Column tries to shrink-wrap]
     E --> F[Expanded widget needs bounded height]
     F --> G{Parent has bounded height?}
-    G -->|NO| H[CONSTRAINT VIOLATION]
+    G -->|NO| H[❌ CONSTRAINT VIOLATION]
     H --> I[GridView cannot be laid out]
-    I --> J[Hit test fails]
+    I --> J[❌ Hit test fails]
     
-    style H fill:#ffcccc,stroke:#cc0000,stroke-width:2px,color:#000
-    style I fill:#ffcccc,stroke:#cc0000,stroke-width:2px,color:#000
-    style J fill:#ffcccc,stroke:#cc0000,stroke-width:2px,color:#000
+    style H fill:#ff6b6b
+    style I fill:#ff6b6b
+    style J fill:#ff6b6b
 ```
 
 **The Constraint Conflict**:
@@ -193,7 +189,6 @@ flowchart TD
 ### Why Version 2 Works ✓
 
 ```mermaid
-%%{init: {'theme':'default', 'themeVariables': { 'primaryColor':'#e8f4f8','primaryTextColor':'#000','primaryBorderColor':'#0066cc','lineColor':'#333'}}}%%
 flowchart TD
     A[Layout Phase Starts] --> B[SafeArea gets screen constraints]
     B --> C[Outer Column tries to size children]
@@ -201,12 +196,12 @@ flowchart TD
     D --> E[Inner Column sums up children]
     E --> F[Container provides height: 400]
     F --> G[GridView gets 400px constraint]
-    G --> H[Layout succeeds]
-    H --> I[Hit test works]
+    G --> H[✓ Layout succeeds]
+    H --> I[✓ Hit test works]
     
-    style F fill:#d4edda,stroke:#28a745,stroke-width:2px,color:#000
-    style H fill:#d4edda,stroke:#28a745,stroke-width:2px,color:#000
-    style I fill:#d4edda,stroke:#28a745,stroke-width:2px,color:#000
+    style F fill:#51cf66
+    style H fill:#51cf66
+    style I fill:#51cf66
 ```
 
 **Why It Works**: By replacing `Expanded` with `Container(height: 400)`, the inner Column can calculate its total height (sum of all children), and the GridView has explicit constraints.
@@ -216,7 +211,6 @@ flowchart TD
 ### Why Version 3 Works ✓ (BEST)
 
 ```mermaid
-%%{init: {'theme':'default', 'themeVariables': { 'primaryColor':'#e8f4f8','primaryTextColor':'#000','primaryBorderColor':'#0066cc','lineColor':'#333'}}}%%
 flowchart TD
     A[Layout Phase Starts] --> B[SafeArea gets screen constraints]
     B --> C[Padding passes constraints down]
@@ -224,15 +218,15 @@ flowchart TD
     D --> E[Column calculates rigid children]
     E --> F[Expanded gets remaining space]
     F --> G[GridView gets bounded constraint]
-    G --> H[Layout succeeds]
-    H --> I[GridView is scrollable]
-    I --> J[Hit test works]
+    G --> H[✓ Layout succeeds]
+    H --> I[✓ GridView is scrollable]
+    I --> J[✓ Hit test works]
     
-    style F fill:#d4edda,stroke:#28a745,stroke-width:2px,color:#000
-    style G fill:#d4edda,stroke:#28a745,stroke-width:2px,color:#000
-    style H fill:#d4edda,stroke:#28a745,stroke-width:2px,color:#000
-    style I fill:#d4edda,stroke:#28a745,stroke-width:2px,color:#000
-    style J fill:#d4edda,stroke:#28a745,stroke-width:2px,color:#000
+    style F fill:#51cf66
+    style G fill:#51cf66
+    style H fill:#51cf66
+    style I fill:#51cf66
+    style J fill:#51cf66
 ```
 
 **Why It Works**: 
